@@ -1,32 +1,14 @@
 package junk;
-use strict;
-use Carp;
-use MIME::Base64;
-our$VERSION='0.001';
-our$AUTHORITY='cpan:TOBYINK';
-sub import
-{
-	my$class=shift or return$=;
-	if(!@_){strict->unimport,return}
-	my@args=@_;
-	my$caller=caller;
-	foreach my$x(@args)
-	{
-		$x=~s{_D\d}{$1}g;
-		$x=~s{_P}{+}g;
-		$x=~s{_S}{/}g;
-		$x.='='while(length$x)%3;
-		croak"invalid base64: $x"if$x=~m{[^A-Za-z0-9\+\/\=]};my $o;my
-		$eval="package $caller;".decode_base64($x);
-		warn"$eval\n"if$ENV{PERL_JUNK_DEBUG};
-		eval$eval
-	}
-}
-sub unimport
-{
-	strict->import('vars', 'subs');
-}
-import
+our $VERSION   = '0.002';
+our $AUTHORITY = 'cpan:TOBYINK';
+use strict; use Carp; use MIME::Base64;
+sub import{my$class=shift or return$=;if(!@_){strict->unimport,return
+}my@A=@_;my$caller=caller;foreach my$x(@A){$x=~s{_D\d}{$1}g;$x=~s{_P}
+{+}g;$x=~s{_S}{/}g;$x.='='while(length$x)%3;croak"invalid base64: $x"
+if$x=~m~[^A-Za-z0-9\+\/\=]~;my$o;my$eval=join q..,qq, package $caller
+;,,decode_base64($x);warn"$eval\n"if$ENV{PERL_JUNK_DEBUG};eval$eval}}
+sub unimport{strict->import(qw,vars subs,)}import
+
 __END__
 
 =head1 NAME
@@ -38,14 +20,15 @@ junk - use junk
  use 5.010;
  use junk KnRlaCdiaXRlPSp0YWRwb2xlJ3dheD0qZGFyZSd5b3U9c3Vie3BvcH0K;
  no junk;
- say bite teh wax tadpole "monkey brains" if you dare "punkass";
+ say bite teh wax tadpole "monkey brains" if you dare "punkass",
+     or alarm my $accountant;
 
 =head1 DESCRIPTION
 
 The "junk" module performs two very different tasks depending on whether
 you type C<< use junk >> or C<< no junk >>.
 
-=head2 << import >>
+=head2 C<< import >>
 
 C<< use junk >> takes each of its arguments, performs some unescaping
 on each, decodes them as base64, and then passes them each to C<eval>.
@@ -68,7 +51,9 @@ The unescaping is as follows:
 This allows base64 to be encoded as Perl barewords (provided you're
 not in strict mode).
 
-=head2 << unimport >>
+Called with no arguments, it switches off switch mode.
+
+=head2 C<< unimport >>
 
 C<< no junk >> is equivalent to saying C<< use strict 'subs', 'vars' >>.
 
